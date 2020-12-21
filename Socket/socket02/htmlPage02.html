@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	window.onload = function(){
+		var socket = io.connect();
+		
+		var name = prompt('이름을 입력하세요.');
+		socket.emit('setname', name);
+		
+		var button = document.getElementById('button');
+		button.onclick = function(){
+			socket.emit('getname');
+		}
+		
+		socket.on('response', function(data){
+			alert(data);
+		});
+		
+	}
+
+</script>
+</head>
+<body>
+	<h3>socket02</h3>
+	<input type="button" id="button" value="데이터불러오기"/>
+</body>
+</html>
+
+
+
+
+
+
