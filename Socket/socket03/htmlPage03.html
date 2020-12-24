@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var socket = io.connect();
+		
+		socket.emit('roomRequest');
+		
+		socket.on('roomResponse', function(data){
+			$('select option').remove();
+			$.each(data, function(index, room){
+				var $output = $('<option value="' + room + '">' + room + '</option>');
+				$('select').append($output);
+			});
+		});
+		
+		$('#create').click(function(){
+			var roomCreate = $('#roomCreate').val();
+			socket.emit('create', roomCreate);
+		});
+		
+		$('#join').click(function(){
+			var selectRoom = $('select').val();
+			socket.emit('join', selectRoom);
+		});
+		
+		$('button').click(function(){
+			socket.emit('message', {
+				room : $('select').val(),
+				name : $('#name').val(),
+				message : $('#message').val(),
+				date : new Date().toUTCString()
+			});
+		});
+		
+		socket.on('message', function(data){
+			var output = '';
+			output += '<li>';
+			output += '<h3>' + data.name  + '</h3>';
+			output += '<p>' + data.message  + '</p>';
+			output += '<p>' + data.date  + '</p>';
+			output += '</li>';
+			
+			$(output).prependTo('#content');
+			$('#content').listview('refresh');
+		});
+		
+		
+	})
+</script>
+</head>
+<body>
+	<div data-role="page">
+        <div data-role="header">
+            <h1>Socket.io Chat</h1>
+        </div>
+        <div data-role="content">
+            <h3>방목록</h3>
+            <select></select>            
+            <a id="join" data-role="button" href="#chatpage1">JOIN</a>
+            <input id="roomCreate"/>
+            <a id="create" data-role="button" >CREATE</a>
+        </div>
+    </div>
+	<div data-role="page" id="chatpage1">
+        <div data-role="header">
+            <h1>Socket.io Chat</h1>
+        </div>
+        <div data-role="content">
+            <h3>Nick Name</h3>           
+            <input id="name" />
+            <a data-role="button" href="#chatpage2">Start Chat</a>
+        </div>
+    </div>
+    <div data-role="page" id="chatpage2">
+        <div data-role="header">
+            <h1>Socket.io Chat</h1>
+        </div>
+        <div data-role="content">        
+            <input id="message" />
+            <button>Button</button>
+            <ul id="content" data-role="listview" data-inset="true">
+
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
