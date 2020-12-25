@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<style type="text/css">
+	.line{
+		overflow: hidden;
+	}
+	
+	.seat{
+		margin: 2px;
+		float: left;
+		width: 30px;
+		height: 30px;
+		border-radius: px;
+	}
+	
+	.e
+	nable{
+		background: gray;
+	}
+	
+	.disable{
+		background: red;
+	}
+	
+</style>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	$(function(){
+		
+		var socket = io.connect();
+		
+		socket.emit('seates');
+				
+		socket.on('seatesResponse', function(data){
+			$('body').empty();
+			$.each(data, function(index1, line){
+				var $line = $('<div></div>').addClass('line');
+				$.each(line, function(index2, seat){
+					var $output = $('<div></div>')
+							.attr({
+								'data-x' : index2,
+								'data-y' : index1
+							})
+							.on('click', onClickSeat)
+							.addClass('seat')
+							.appendTo($line);
+					
+					if(seat == 1){
+						$output.addClass('enable');
+					}else if(seat == 2){
+						$output.addClass('disable');
+					}
+					
+				});//inner each				
+				
+				$line.appendTo('body');
+			});//outer each
+		});
+		
+		function onClickSeat(){
+			var x = $(this).attr('data-x');
+			var y = $(this).attr('data-y');
+			
+			if(confirm('예약을 하시겠습니까?')){
+				$(this).off('click');
+				socket.emit('reserve', {
+					x : x,
+					y : y
+				});
+			}else{
+				alert("예약을 취소했습니다.");
+			}
+		}
+		
+		socket.on('reserve', function(data){
+			var $target = $('div[data-x=' + data.x + '][data-y=' + data.y + ']');
+			
+			$target.removeClass('enable');
+			$target.addClass('disable');
+		});
+		
+		
+		
+	});
+</script>
+</head>
+<body>
+
+</body>
+</html>
+
+
+
+
+
+
+
